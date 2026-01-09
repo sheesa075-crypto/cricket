@@ -3,63 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Cricket Scores</title>
+    <title>🏏 Live Cricket Scores</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        
-        #cricket-scores {
-            background-color: #2d2d2d;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+        .container {
+            max-width: 900px;
+            width: 100%;
         }
-        
-        #match-title {
-            color: #4CAF50;
-            font-size: 24px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
         }
-        
-        #team1 {
-            font-size: 20px;
+
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .match-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .match-title {
+            font-size: 1.8em;
             font-weight: bold;
-            margin: 10px 0;
-            color: #64B5F6;
+            margin-bottom: 5px;
         }
-        
-        #status {
-            font-size: 16px;
-            margin: 10px 0;
-            color: #FFB74D;
+
+        .match-type {
+            font-size: 1em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        
-        #score {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #3d3d3d;
-            border-radius: 5px;
-            line-height: 1.8;
-            font-size: 15px;
+
+        .teams-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .team {
+            text-align: center;
+            flex: 1;
+        }
+
+        .team-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .team-flag {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .vs-divider {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0 20px;
+        }
+
+        .status-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+
+        .score-section {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .score-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .score-line {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #333;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .score-line:hover {
+            transform: translateX(5px);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .teams-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .vs-divider {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+
+            .match-title {
+                font-size: 1.4em;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                content: '.';
+            }
+            40% {
+                content: '..';
+            }
+            60%, 100% {
+                content: '...';
+            }
         }
     </style>
 </head>
 <body>
-    <div id="cricket-scores">
-        <h2 id="match-title">Loading cricket scores...</h2>
-        <p id="team1"></p>
-        <p id="status"></p>
-        <div id="score"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🏏 Live Cricket Scores</h1>
+            <p>Real-time updates from around the world</p>
+        </div>
+
+        <div id="matchContainer">
+            <div class="match-card">
+                <div class="loading">Loading cricket scores</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="previousMatch()">⬅️ Previous Match</button>
+            <button class="btn" onclick="nextMatch()">Next Match ➡️</button>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Dummy cricket matches data
+        const dummyMatches = [
+            {
+                name: "India vs Australia",
+                series: "Border-Gavaskar Trophy - 3rd Test",
+                matchType: "Test",
+                t1: "India",
+                t2: "Australia",
+                t1Flag: "🇮🇳",
+                t2Flag: "🇦🇺",
+                status: "India won by 8 wickets",
+                isLive: false,
+                score: [
+                    "India: 296/10 (89.2 overs) & 187/2 (45.1 overs)",
+                    "Australia: 224/10 (71.5 overs) & 256/10 (87.3 overs)"
+                ]
+            },
+            {
+                name: "Pakistan vs England",
+                series: "England Tour of Pakistan - 2nd ODI",
+                matchType: "ODI",
+                t1: "Pakistan",
+                t2: "England",
+                t1Flag: "🇵🇰",
+                t2Flag: "🏴󐁧󐁢󐁥󐁮󐁧󐁿",
+                status: "Live - England need 130 runs from 18 overs",
+                isLive: true,
+                score: [
+                    "Pakistan: 285/7 (50.0 overs)",
+                    "England: 156/4 (32.0 overs) - CRR: 4.88, RRR: 7.22"
+                ]
+            },
+            {
+                name: "South Africa vs New Zealand",
+                series: "T20 International Series - Match 1",
+                matchType: "T20",
+                t1: "South Africa",
+                t2: "New Zealand",
+                t1Flag: "🇿🇦",
+                t2Flag: "🇳🇿",
+                status: "Live - South Africa need 79 runs from 44 balls",
+                isLive: true,
+                score: [
+                    "New Zealand: 167/8 (20.0 overs)",
+                    "South Africa: 89/3 (12.4 overs) - CRR: 7.03, RRR: 10.77"
+                ]
+            },
+            {
+                name: "Sri Lanka vs Bangladesh",
+                series: "Asia Cup 2025 - Group Stage",
+                matchType: "ODI",
+                t1: "Sri Lanka",
+                t2: "Bangladesh",
+                t1Flag: "🇱🇰",
+                t2Flag: "🇧🇩",
+                status: "Sri Lanka won by 45 runs",
+                isLive: false,
+                score: [
+                    "Sri Lanka: 312/6 (50.0 overs)",
+                    "Bangladesh: 267/10 (47.2 overs)"
+                ]
+            },
+            {
+                name: "West Indies vs Ireland",
+                series: "T20 World Cup Qualifier",
+                matchType: "T20",
+                t1: "West Indies",
+                t2: "Ireland",
+                t1Flag: "🇯🇲",
+                t2Flag: "🇮🇪",
+                status: "Match starts in 2 hours",
+                isLive: false,
+                score: []
+            }
+        ];
+
+        let currentMatchIndex = 0;
+
+        function displayMatch(index) {
+            const match = dummyMatches[index];
+            const container = document.getElementById('matchContainer');
+            
+            const liveIndicator = match.isLive ? '<span class="live-indicator"></span>' : '';
+            
+            let scoresHTML = '';
+            if (match.score && match.score.length > 0) {
+                scoresHTML = `
+                    <div class="score-section">
+                        <div class="score-title">📊 Scorecard</div>
+                        ${match.score.map(score => `<div class="score-line">${score}</div>`).join('')}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="match-card">
+                    <div class="match-header">
+                        <div class="match-title">${match.name}</div>
+                        <div class="match-type">${match.series}</div>
+                    </div>
+                    
+                    <div class="teams-section">
+                        <div class="team">
+                            <div class="team-flag">${match.t1Flag}</div>
+                            <div class="team-name">${match.t1}</div>
+                        </div>
+                        <div class="vs-divider">VS</div>
+                        <div class="team">
+                            <div class="team-flag">${match.t2Flag}</div>
+                            <div class="team-name">${match.t2}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-section">
+                        ${liveIndicator}${match.status}
+                    </div>
+                    
+                    ${scoresHTML}
+                </div>
+            `;
+        }
+
+        function nextMatch() {
+            currentMatchIndex = (currentMatchIndex + 1) % dummyMatches.length;
+            displayMatch(currentMatchIndex);
+        }
+
+        function previousMatch() {
+            currentMatchIndex = (currentMatchIndex - 1 + dummyMatches.length) % dummyMatches.length;
+            displayMatch(currentMatchIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                previousMatch();
+            } else if (event.key === 'ArrowRight') {
+                nextMatch();
+            }
+        });
+
+        // Initialize - display first match
+        window.addEventListener('load', function() {
+            console.log('Cricket Scores App Loaded Successfully! 🏏');
+            displayMatch(currentMatchIndex);
+            
+            // Auto-rotate through live matches every 10 seconds
+            setInterval(function() {
+                // Find next live match
+                let nextLiveIndex = currentMatchIndex;
+                for (let i = 1; i <= dummyMatches.length; i++) {
+                    const checkIndex = (currentMatchIndex + i) % dummyMatches.length;
+                    if (dummyMatches[checkIndex].isLive) {
+                        nextLiveIndex = checkIndex;
+                        break;
+                    }
+                }
+                if (nextLiveIndex !== currentMatchIndex) {
+                    currentMatchIndex = nextLiveIndex;
+                    displayMatch(currentMatchIndex);
+                }
+            }, 10000);
+        });
+
+        console.log('🏏 Cricket Live Score App Initialized!');
+        console.log('Total Matches:', dummyMatches.length);
+        console.log('Use Arrow Keys (← →) or buttons to navigate');
+    </script>
 </body>
 </html>
