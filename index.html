@@ -62,6 +62,13 @@
             background: rgba(255, 193, 7, 0.3);
         }
 
+        .last-updated {
+            display: block;
+            font-size: 0.85em;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
         .toggle-mode {
             text-align: center;
             margin-bottom: 20px;
@@ -77,11 +84,29 @@
             cursor: pointer;
             margin: 0 5px;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .toggle-btn.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
         }
 
         .matches-grid {
@@ -98,6 +123,12 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             animation: fadeInUp 0.8s ease;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .match-card.live-match {
+            border: 3px solid #ff4444;
+            box-shadow: 0 10px 40px rgba(255, 68, 68, 0.5);
         }
 
         .match-card:hover {
@@ -112,6 +143,10 @@
             border-radius: 12px;
             margin-bottom: 20px;
             text-align: center;
+        }
+
+        .match-header.live-header {
+            background: linear-gradient(135deg, #ff4444 0%, #ff6b6b 100%);
         }
 
         .match-title {
@@ -155,6 +190,11 @@
             font-weight: bold;
         }
 
+        .team-score.live-score {
+            color: #ff4444;
+            animation: scoreUpdate 0.5s ease;
+        }
+
         .vs-divider {
             font-size: 1.5em;
             font-weight: bold;
@@ -175,13 +215,18 @@
 
         .status-section.live {
             animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #ff4444 0%, #ff6b6b 100%);
+        }
+
+        .status-section.upcoming {
+            background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
         }
 
         .live-indicator {
             display: inline-block;
             width: 10px;
             height: 10px;
-            background: #ff4444;
+            background: #ffffff;
             border-radius: 50%;
             animation: blink 1.5s infinite;
             margin-right: 8px;
@@ -193,6 +238,10 @@
             border-radius: 10px;
             margin-top: 15px;
             font-size: 0.9em;
+        }
+
+        .match-details.live-details {
+            background: #ffebee;
         }
 
         .detail-row {
@@ -213,6 +262,16 @@
 
         .detail-value {
             color: #333;
+        }
+
+        .countdown-timer {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-top: 10px;
         }
 
         .loading {
@@ -275,33 +334,18 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .debug-console {
-            background: rgba(0, 0, 0, 0.8);
-            color: #00ff00;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-family: monospace;
+        .auto-refresh-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
             font-size: 0.9em;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .debug-console .log-entry {
-            margin-bottom: 5px;
-            padding: 5px;
-            border-left: 3px solid #00ff00;
-            padding-left: 10px;
-        }
-
-        .debug-console .log-error {
-            border-left-color: #ff4444;
-            color: #ff4444;
-        }
-
-        .debug-console .log-success {
-            border-left-color: #44ff44;
-            color: #44ff44;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideInRight 0.5s ease;
         }
 
         @keyframes fadeInDown {
@@ -340,7 +384,7 @@
                 opacity: 1;
             }
             50% {
-                opacity: 0.3;
+                opacity: 0.2;
             }
         }
 
@@ -353,6 +397,30 @@
             }
             60%, 100% {
                 content: '...';
+            }
+        }
+
+        @keyframes scoreUpdate {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+                color: #ff6b6b;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
 
@@ -373,6 +441,13 @@
             .vs-divider {
                 transform: rotate(90deg);
             }
+
+            .auto-refresh-indicator {
+                bottom: 10px;
+                right: 10px;
+                font-size: 0.8em;
+                padding: 8px 15px;
+            }
         }
     </style>
 </head>
@@ -381,79 +456,71 @@
         <div class="header">
             <h1>🏏 Live Cricket Scores</h1>
             <p>Real-time updates from Cricbuzz API</p>
-            <div class="api-status loading" id="apiStatus">⏳ Connecting to API...</div>
+            <div class="api-status loading" id="apiStatus">
+                ⏳ Connecting to API...
+                <span class="last-updated" id="lastUpdated"></span>
+            </div>
         </div>
 
         <div class="toggle-mode">
-            <button class="toggle-btn active" id="liveBtn" onclick="showLive()">🔴 Live Matches</button>
-            <button class="toggle-btn" id="recentBtn" onclick="showRecent()">📋 Recent</button>
-            <button class="toggle-btn" id="upcomingBtn" onclick="showUpcoming()">📅 Upcoming</button>
+            <button class="toggle-btn active" id="liveBtn" onclick="showLive()">
+                🔴 Live Matches
+                <span class="badge" id="liveBadge" style="display: none;">0</span>
+            </button>
+            <button class="toggle-btn" id="recentBtn" onclick="showRecent()">
+                📋 Recent
+                <span class="badge" id="recentBadge" style="display: none;">0</span>
+            </button>
+            <button class="toggle-btn" id="upcomingBtn" onclick="showUpcoming()">
+                📅 Upcoming
+                <span class="badge" id="upcomingBadge" style="display: none;">0</span>
+            </button>
         </div>
 
         <div id="matchesContainer">
             <div class="loading">Fetching cricket matches from API</div>
         </div>
 
-        <div id="debugConsole" class="debug-console" style="display: none;">
-            <strong>Debug Console:</strong>
-            <div id="debugLogs"></div>
+        <div id="autoRefreshIndicator" class="auto-refresh-indicator" style="display: none;">
+            🔄 Auto-refreshing... <span id="refreshCountdown">30</span>s
         </div>
     </div>
 
     <script>
-        // ⚠️ IMPORTANT: Replace with your actual RapidAPI key
+        // ⚠️ YOUR API KEY HERE
         const RAPIDAPI_KEY = 'aa9f77a5f8msh6f99a54f9fe3879p1a614ejsn59da5ed6465f';
         const RAPIDAPI_HOST = 'rapidapi.com';
 
+        // Configuration
+        const REFRESH_INTERVAL = 30000; // 30 seconds for live matches
+        const UPCOMING_REFRESH_INTERVAL = 300000; // 5 minutes for upcoming matches
 
-
-        // Debug logging
-        const debugLogs = [];
-        function debugLog(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = `[${timestamp}] ${message}`;
-            debugLogs.push({ message: logEntry, type });
-            console.log(logEntry);
-            updateDebugConsole();
-        }
-
-        function updateDebugConsole() {
-            const debugDiv = document.getElementById('debugLogs');
-            if (debugDiv) {
-                debugDiv.innerHTML = debugLogs.map(log => {
-                    const className = log.type === 'error' ? 'log-error' : 
-                                     log.type === 'success' ? 'log-success' : 'log-entry';
-                    return `<div class="${className}">${log.message}</div>`;
-                }).slice(-20).join(''); // Show last 20 logs
-            }
-        }
-
-        // Mode toggle
+        // State management
         let currentMode = 'live';
         let allMatches = { live: [], recent: [], upcoming: [] };
+        let refreshTimer = null;
+        let countdownTimer = null;
+        let lastRefreshTime = null;
 
         // Fetch matches from Real API
         async function fetchRealMatches() {
-            debugLog('🔄 Starting API request...', 'info');
+            console.log('🔄 Fetching matches from API...');
             
             try {
                 // Check if API key is set
-                if (RAPIDAPI_KEY === 'YOUR_RAPIDAPI_KEY_HERE') {
+                if (RAPIDAPI_KEY === 'aa9f77a5f8msh6f99a54f9fe3879p1a614ejsn59da5ed6465f') {
                     throw new Error('API key not configured. Please add your RapidAPI key in the code.');
                 }
 
-                debugLog(`📡 Calling API: https://${RAPIDAPI_HOST}/matches/v1/recent`, 'info');
-                
-                const response = await fetch(`https://${RAPIDAPI_HOST}/matches/v1/recent`, {
+                const response = await fetch(`https://${rapidapi.com}/matches/v1/recent`, {
                     method: 'GET',
                     headers: {
-                        'X-RapidAPI-Key': RAPIDAPI_KEY,
-                        'X-RapidAPI-Host': RAPIDAPI_HOST
+                        'X-RapidAPI-Key':'aa9f77a5f8msh6f99a54f9fe3879p1a614ejsn59da5ed6465f',
+                        'X-RapidAPI-Host': rapidapi.com
                     }
                 });
 
-                debugLog(`📊 Response Status: ${response.status} ${response.statusText}`, 
-                         response.ok ? 'success' : 'error');
+                console.log(`📊 Response Status: ${response.status}`);
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -461,30 +528,26 @@
                 }
 
                 const data = await response.json();
-                debugLog('✅ Data received successfully', 'success');
-                debugLog(`📦 Data structure: ${JSON.stringify(Object.keys(data))}`, 'info');
-                
+                console.log('✅ Data received successfully');
                 console.log('Full API Response:', data);
                 
-                updateApiStatus('connected', '✓ API Connected Successfully');
+                lastRefreshTime = new Date();
+                updateLastRefreshTime();
+                updateApiStatus('connected', '✓ API Connected');
                 
                 return parseApiData(data);
                 
             } catch (error) {
-                debugLog(`❌ API Error: ${error.message}`, 'error');
-                console.error('Detailed API Error:', error);
+                console.error('❌ API Error:', error);
                 updateApiStatus('error', `⚠ API Error: ${error.message}`);
-                
-                // Show detailed error to user
                 showErrorMessage(error.message);
-                
                 return { live: [], recent: [], upcoming: [] };
             }
         }
 
         // Parse API data into our format
         function parseApiData(apiData) {
-            debugLog('🔍 Parsing API data...', 'info');
+            console.log('🔍 Parsing API data...');
             
             const matches = {
                 live: [],
@@ -494,15 +557,13 @@
 
             try {
                 if (!apiData.typeMatches || apiData.typeMatches.length === 0) {
-                    debugLog('⚠️ No typeMatches found in API response', 'error');
+                    console.log('⚠️ No typeMatches found in API response');
                     return matches;
                 }
 
-                debugLog(`📋 Found ${apiData.typeMatches.length} type matches`, 'info');
+                console.log(`📋 Found ${apiData.typeMatches.length} type matches`);
 
-                apiData.typeMatches.forEach((typeMatch, index) => {
-                    debugLog(`Processing type match ${index + 1}...`, 'info');
-                    
+                apiData.typeMatches.forEach((typeMatch) => {
                     if (typeMatch.seriesMatches) {
                         typeMatch.seriesMatches.forEach(seriesMatch => {
                             if (seriesMatch.seriesAdWrapper) {
@@ -515,6 +576,7 @@
                                             const parsedMatch = {
                                                 id: matchInfo.matchId,
                                                 name: `${matchInfo.team1?.teamName || 'TBA'} vs ${matchInfo.team2?.teamName || 'TBA'}`,
+                                                series: matchInfo.seriesName || 'Unknown Series',
                                                 matchType: matchInfo.matchFormat || 'Unknown',
                                                 team1: matchInfo.team1?.teamName || 'TBA',
                                                 team2: matchInfo.team2?.teamName || 'TBA',
@@ -522,15 +584,18 @@
                                                 team2Score: matchInfo.team2Score || '-',
                                                 status: matchInfo.status || 'Scheduled',
                                                 venue: matchInfo.venueInfo?.ground || 'Venue TBA',
+                                                city: matchInfo.venueInfo?.city || '',
+                                                matchState: matchInfo.state,
+                                                startDate: matchInfo.startDate,
                                                 isLive: matchInfo.state === 'In Progress'
                                             };
 
-                                            // Categorize matches
+                                            // Categorize matches based on state
                                             if (parsedMatch.isLive) {
                                                 matches.live.push(parsedMatch);
                                             } else if (matchInfo.state === 'Complete') {
                                                 matches.recent.push(parsedMatch);
-                                            } else {
+                                            } else if (matchInfo.state === 'Upcoming' || matchInfo.state === 'Preview') {
                                                 matches.upcoming.push(parsedMatch);
                                             }
                                         }
@@ -541,24 +606,71 @@
                     }
                 });
 
-                debugLog(`✅ Parsed: ${matches.live.length} live, ${matches.recent.length} recent, ${matches.upcoming.length} upcoming`, 'success');
+                console.log(`✅ Parsed: ${matches.live.length} live, ${matches.recent.length} recent, ${matches.upcoming.length} upcoming`);
+                
+                // Update badges
+                updateMatchBadges(matches);
 
             } catch (parseError) {
-                debugLog(`❌ Parse Error: ${parseError.message}`, 'error');
-                console.error('Detailed Parse Error:', parseError);
+                console.error('❌ Parse Error:', parseError);
             }
 
             return matches;
         }
 
+        // Update match count badges
+        function updateMatchBadges(matches) {
+            const liveBadge = document.getElementById('liveBadge');
+            const recentBadge = document.getElementById('recentBadge');
+            const upcomingBadge = document.getElementById('upcomingBadge');
+
+            if (matches.live.length > 0) {
+                liveBadge.textContent = matches.live.length;
+                liveBadge.style.display = 'flex';
+            } else {
+                liveBadge.style.display = 'none';
+            }
+
+            if (matches.recent.length > 0) {
+                recentBadge.textContent = matches.recent.length;
+                recentBadge.style.display = 'flex';
+            } else {
+                recentBadge.style.display = 'none';
+            }
+
+            if (matches.upcoming.length > 0) {
+                upcomingBadge.textContent = matches.upcoming.length;
+                upcomingBadge.style.display = 'flex';
+            } else {
+                upcomingBadge.style.display = 'none';
+            }
+        }
+
         // Update API status indicator
         function updateApiStatus(status, message) {
             const statusEl = document.getElementById('apiStatus');
-            statusEl.textContent = message;
+            const existingLastUpdated = statusEl.querySelector('.last-updated');
             statusEl.className = `api-status ${status}`;
+            
+            // Update only the text, preserve the last-updated span
+            const textNode = Array.from(statusEl.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+            if (textNode) {
+                textNode.textContent = message + ' ';
+            } else {
+                statusEl.insertBefore(document.createTextNode(message + ' '), statusEl.firstChild);
+            }
         }
 
-        // Show error message to user
+        // Update last refresh time
+        function updateLastRefreshTime() {
+            if (lastRefreshTime) {
+                const lastUpdatedEl = document.getElementById('lastUpdated');
+                const timeString = lastRefreshTime.toLocaleTimeString();
+                lastUpdatedEl.textContent = `Last updated: ${timeString}`;
+            }
+        }
+
+        // Show error message
         function showErrorMessage(errorMsg) {
             const container = document.getElementById('matchesContainer');
             container.innerHTML = `
@@ -574,14 +686,32 @@
                         5. Check if you've exceeded your API rate limit
                     </div>
                     <button class="refresh-btn" onclick="loadMatches()">🔄 Retry Connection</button>
-                    <button class="refresh-btn" onclick="toggleDebugConsole()">🔍 Show Debug Logs</button>
                 </div>
             `;
         }
 
-        function toggleDebugConsole() {
-            const debugConsole = document.getElementById('debugConsole');
-            debugConsole.style.display = debugConsole.style.display === 'none' ? 'block' : 'none';
+        // Format match start time for upcoming matches
+        function formatMatchTime(startDate) {
+            if (!startDate) return 'Time TBA';
+            
+            const matchDate = new Date(parseInt(startDate));
+            const now = new Date();
+            const diffMs = matchDate - now;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffMs < 0) {
+                return 'Match should have started';
+            } else if (diffHours < 1) {
+                const diffMins = Math.floor(diffMs / (1000 * 60));
+                return `Starts in ${diffMins} minutes`;
+            } else if (diffHours < 24) {
+                return `Starts in ${diffHours} hours`;
+            } else if (diffDays === 1) {
+                return `Starts tomorrow at ${matchDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            } else {
+                return `Starts on ${matchDate.toLocaleDateString()} at ${matchDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
         }
 
         // Display matches
@@ -596,43 +726,55 @@
                         <button class="refresh-btn" onclick="loadMatches()">🔄 Refresh</button>
                     </div>
                 `;
-                debugLog(`No ${currentMode} matches to display`, 'info');
                 return;
             }
 
-            debugLog(`Displaying ${matches.length} ${currentMode} matches`, 'success');
-
             const matchesHTML = matches.map(match => {
-                const liveClass = match.isLive ? 'live' : '';
-                const liveIndicator = match.isLive ? '<span class="live-indicator"></span>' : '';
+                const isLive = match.isLive;
+                const liveClass = isLive ? 'live-match' : '';
+                const headerClass = isLive ? 'live-header' : '';
+                const detailsClass = isLive ? 'live-details' : '';
+                const liveIndicator = isLive ? '<span class="live-indicator"></span>' : '';
+                const statusClass = isLive ? 'live' : (currentMode === 'upcoming' ? 'upcoming' : '');
+                const scoreClass = isLive ? 'live-score' : '';
+                
+                // Format timing for upcoming matches
+                const timingInfo = currentMode === 'upcoming' ? 
+                    `<div class="countdown-timer">⏰ ${formatMatchTime(match.startDate)}</div>` : '';
                 
                 return `
-                    <div class="match-card">
-                        <div class="match-header">
+                    <div class="match-card ${liveClass}">
+                        <div class="match-header ${headerClass}">
                             <div class="match-title">${match.name}</div>
-                            <div class="match-type">${match.matchType}</div>
+                            <div class="match-type">${match.series} • ${match.matchType}</div>
                         </div>
                         
                         <div class="teams-section">
                             <div class="team">
                                 <div class="team-name">${match.team1}</div>
-                                <div class="team-score">${match.team1Score}</div>
+                                <div class="team-score ${scoreClass}">${match.team1Score}</div>
                             </div>
                             <div class="vs-divider">VS</div>
                             <div class="team">
                                 <div class="team-name">${match.team2}</div>
-                                <div class="team-score">${match.team2Score}</div>
+                                <div class="team-score ${scoreClass}">${match.team2Score}</div>
                             </div>
                         </div>
                         
-                        <div class="status-section ${liveClass}">
+                        <div class="status-section ${statusClass}">
                             ${liveIndicator}${match.status}
                         </div>
                         
-                        <div class="match-details">
+                        ${timingInfo}
+                        
+                        <div class="match-details ${detailsClass}">
                             <div class="detail-row">
                                 <span class="detail-label">Venue:</span>
-                                <span class="detail-value">${match.venue}</span>
+                                <span class="detail-value">${match.venue}${match.city ? ', ' + match.city : ''}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status:</span>
+                                <span class="detail-value">${match.matchState}</span>
                             </div>
                             <div class="detail-row">
                                 <span class="detail-label">Match ID:</span>
@@ -651,18 +793,21 @@
             currentMode = 'live';
             updateActiveButton('liveBtn');
             displayMatches(allMatches.live);
+            setupAutoRefresh(); // Start auto-refresh for live matches
         }
 
         function showRecent() {
             currentMode = 'recent';
             updateActiveButton('recentBtn');
             displayMatches(allMatches.recent);
+            stopAutoRefresh(); // Stop auto-refresh for recent matches
         }
 
         function showUpcoming() {
             currentMode = 'upcoming';
             updateActiveButton('upcomingBtn');
             displayMatches(allMatches.upcoming);
+            setupAutoRefresh(true); // Start slower refresh for upcoming matches
         }
 
         function updateActiveButton(activeId) {
@@ -672,9 +817,61 @@
             document.getElementById(activeId).classList.add('active');
         }
 
+        // Auto-refresh functionality
+        function setupAutoRefresh(isUpcoming = false) {
+            stopAutoRefresh(); // Clear any existing timers
+            
+            const interval = isUpcoming ? UPCOMING_REFRESH_INTERVAL : REFRESH_INTERVAL;
+            let countdown = interval / 1000;
+
+            // Show refresh indicator
+            const indicator = document.getElementById('autoRefreshIndicator');
+            indicator.style.display = 'block';
+
+            // Countdown timer
+            countdownTimer = setInterval(() => {
+                countdown--;
+                document.getElementById('refreshCountdown').textContent = countdown;
+                
+                if (countdown <= 0) {
+                    countdown = interval / 1000;
+                }
+            }, 1000);
+
+            // Actual refresh timer
+            refreshTimer = setInterval(async () => {
+                console.log(`🔄 Auto-refreshing ${currentMode} matches...`);
+                indicator.textContent = `🔄 Refreshing ${currentMode} matches...`;
+                
+                allMatches = await fetchRealMatches();
+                displayMatches(allMatches[currentMode]);
+                
+                countdown = interval / 1000;
+                indicator.innerHTML = `🔄 Auto-refreshing... <span id="refreshCountdown">${countdown}</span>s`;
+                
+                // Check if upcoming matches became live
+                if (isUpcoming && allMatches.live.length > 0) {
+                    console.log('🔴 Upcoming match is now LIVE!');
+                    showLive(); // Automatically switch to live view
+                }
+            }, interval);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+                refreshTimer = null;
+            }
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            document.getElementById('autoRefreshIndicator').style.display = 'none';
+        }
+
         // Load matches
         async function loadMatches() {
-            debugLog('🚀 Loading matches...', 'info');
+            console.log('🚀 Loading matches...');
             const container = document.getElementById('matchesContainer');
             container.innerHTML = '<div class="loading">Fetching cricket matches from API</div>';
             
@@ -682,22 +879,26 @@
             
             allMatches = await fetchRealMatches();
             displayMatches(allMatches[currentMode]);
+            
+            // Setup auto-refresh based on current mode
+            if (currentMode === 'live') {
+                setupAutoRefresh();
+            } else if (currentMode === 'upcoming') {
+                setupAutoRefresh(true);
+            }
         }
 
         // Initialize app
         window.addEventListener('load', function() {
-            debugLog('🏏 Cricket App Initialized!', 'success');
-            debugLog(`API Key configured: ${RAPIDAPI_KEY !== 'YOUR_RAPIDAPI_KEY_HERE' ? 'Yes' : 'No'}`, 'info');
+            console.log('🏏 Cricket App Initialized!');
+            console.log(`API Key configured: ${RAPIDAPI_KEY !== 'aa9f77a5f8msh6f99a54f9fe3879p1a614ejsn59da5ed6465f' ? 'Yes' : 'No'}`);
             
             loadMatches();
-            
-            // Auto-refresh every 60 seconds for live matches
-            setInterval(() => {
-                if (currentMode === 'live') {
-                    debugLog('🔄 Auto-refreshing live matches...', 'info');
-                    loadMatches();
-                }
-            }, 60000);
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            stopAutoRefresh();
         });
     </script>
 </body>
